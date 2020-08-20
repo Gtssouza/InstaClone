@@ -31,6 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        verificaUsuarioLogado();
         setContentView(R.layout.activity_login);
 
         campoEmailLogin = findViewById(R.id.editTxtEmailLogin);
