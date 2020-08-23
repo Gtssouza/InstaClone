@@ -12,6 +12,7 @@ public class ConfiguracaoFirebase {
     private static FirebaseAuth firebaseAuth;
     private static StorageReference storageReference;
 
+
     public static FirebaseAuth getFirebaseAuth(){
         if(firebaseAuth == null){
             firebaseAuth = FirebaseAuth.getInstance();
@@ -32,5 +33,7 @@ public class ConfiguracaoFirebase {
         }
         return storageReference;
     }
+
+
 
 }

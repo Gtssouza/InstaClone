@@ -17,13 +17,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.instaclone.R;
 import com.example.instaclone.helper.ConfiguracaoFirebase;
 import com.example.instaclone.helper.Permissao;
 import com.example.instaclone.helper.UsuarioFirebase;
 import com.example.instaclone.model.Usuario;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.StorageReference;
@@ -43,6 +46,7 @@ public class EditarPerfilActivity extends AppCompatActivity {
     private Usuario usuarioLogado;
     private static final int SELECAO_GALERIA=200;
     private StorageReference storageRef;
+    private String identificadorUsuario;
 
     private String[] permissioesNecessarias = new String[]{
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -62,6 +66,8 @@ public class EditarPerfilActivity extends AppCompatActivity {
         btnAlterarNome = findViewById(R.id.btnAlterarEditPerfil);
         txtAlterarFoto = findViewById(R.id.btnAlterarFotoEdit);
 
+        identificadorUsuario = UsuarioFirebase.getIdentificadorUser();
+
         storageRef = ConfiguracaoFirebase.getStorageReference();
 
         Permissao.validarPermissoes(permissioesNecessarias,this,1);
@@ -70,6 +76,14 @@ public class EditarPerfilActivity extends AppCompatActivity {
 
         txtNomeEdit.setText(usuario.getDisplayName());
         txtEmailEdit.setText(usuario.getEmail());
+
+        Uri url = usuario.getPhotoUrl();
+
+        if(url != null){
+            Glide.with(EditarPerfilActivity.this).load(url).into(imgPerfEdit);
+        }else{
+            imgPerfEdit.setImageResource(R.drawable.avatar);
+        }
 
         Toolbar toolbar = findViewById(R.id.toolbarPrincipal);
         toolbar.setTitle("Editar perfil");
@@ -125,7 +139,7 @@ public class EditarPerfilActivity extends AppCompatActivity {
                     imagem.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
                     byte[] dadosImagem = byteArrayOutputStream.toByteArray();
                     //Salvar imagem no firebase
-                    StorageReference imageRef = storageRef.child("imagens").child("perfil").child("<id-usuario>.jpeg");
+                    final StorageReference imageRef = storageRef.child("imagens").child("perfil").child(identificadorUsuario + ".jpeg");
                     UploadTask uploadTask = imageRef.putBytes(dadosImagem);
                     uploadTask.addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -134,15 +148,21 @@ public class EditarPerfilActivity extends AppCompatActivity {
                         }
                     }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) { Toast.makeText(EditarPerfilActivity.this, "Sucesso ao fazer upload da imagem", Toast.LENGTH_SHORT).show();
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            imageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    Uri url = task.getResult();
+                                    atualizarFotoUser(url);
+                                }
+                            });
+                            Toast.makeText(EditarPerfilActivity.this, "Sucesso ao fazer upload da imagem", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
             }catch (Exception e){
                 e.printStackTrace();
             }
-        }else {
-
         }
     }
 
@@ -150,5 +170,16 @@ public class EditarPerfilActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         finish();
         return false;
+    }
+
+    private void atualizarFotoUser(Uri uri){
+        //Atualiza foto no Perfil
+        UsuarioFirebase.atualizaFotoUser(uri);
+
+        //Atualiza foto no Firebase
+        usuarioLogado.setCaminhoFoto(uri.toString());
+        usuarioLogado.atualizar();
+
+        Toast.makeText(EditarPerfilActivity.this, "Sua foto foi alterada",Toast.LENGTH_SHORT).show();
     }
 }
