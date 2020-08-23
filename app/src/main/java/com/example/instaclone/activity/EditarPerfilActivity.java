@@ -4,9 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.instaclone.R;
 import com.example.instaclone.helper.UsuarioFirebase;
@@ -31,6 +33,8 @@ public class EditarPerfilActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editar_perfil);
 
+        usuarioLogado = UsuarioFirebase.getDadosUsuarioLogado();
+
         imgPerfEdit = findViewById(R.id.circleImgEdit);
         txtNomeEdit = findViewById(R.id.editTxtAlterarNome);
         txtEmailEdit = findViewById(R.id.editTxtEmailEdit);
@@ -45,6 +49,18 @@ public class EditarPerfilActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbarPrincipal);
         toolbar.setTitle("Editar perfil");
         setSupportActionBar(toolbar);
+
+        btnAlterarNome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String nomeAtualizado = txtNomeEdit.getText().toString();
+                UsuarioFirebase.atualizaNomeUser(nomeAtualizado);
+                usuarioLogado.setNome(nomeAtualizado);
+                usuarioLogado.atualizar();
+
+                Toast.makeText(EditarPerfilActivity.this, "Dados alterados com sucesso",Toast.LENGTH_SHORT).show();
+            }
+        });
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_24);
