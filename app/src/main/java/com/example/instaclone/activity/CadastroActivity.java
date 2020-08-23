@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.instaclone.R;
+import com.example.instaclone.helper.Base64Custom;
 import com.example.instaclone.helper.ConfiguracaoFirebase;
 import com.example.instaclone.model.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -72,7 +73,7 @@ public class CadastroActivity extends AppCompatActivity {
         });
     }
 
-    public void cadastrarUsuario(Usuario user){
+    public void cadastrarUsuario(final Usuario user){
         progressBarCadastro.setVisibility(View.VISIBLE);
         firebaseAuth = ConfiguracaoFirebase.getFirebaseAuth();
         firebaseAuth.createUserWithEmailAndPassword(
@@ -86,7 +87,9 @@ public class CadastroActivity extends AppCompatActivity {
                         progressBarCadastro.setVisibility(View.GONE);
 
                         //Salvar dados no Firebase
-
+                        String idUser = task.getResult().getUser().getUid();
+                        user.setId(idUser);
+                        user.salvar();
 
                         Toast.makeText(CadastroActivity.this,"Sucesso ao cadastrar usuário",Toast.LENGTH_SHORT).show();
 

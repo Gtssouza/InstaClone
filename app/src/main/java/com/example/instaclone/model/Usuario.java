@@ -1,5 +1,9 @@
 package com.example.instaclone.model;
 
+import com.example.instaclone.helper.ConfiguracaoFirebase;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Exclude;
+
 import java.io.Serializable;
 
 public class Usuario implements Serializable {
@@ -10,6 +14,12 @@ public class Usuario implements Serializable {
     private String caminhoFoto;
 
     public Usuario() {
+    }
+
+    public void salvar(){
+        DatabaseReference firebaseRef = ConfiguracaoFirebase.getDatabaseReference();
+        DatabaseReference usuario = firebaseRef.child("usuarios").child(getId());
+        usuario.setValue(this);
     }
 
     public String getId() {
@@ -35,7 +45,7 @@ public class Usuario implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
-
+    @Exclude
     public String getSenha() {
         return senha;
     }
