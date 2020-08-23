@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.example.instaclone.R;
 import com.example.instaclone.helper.Base64Custom;
 import com.example.instaclone.helper.ConfiguracaoFirebase;
+import com.example.instaclone.helper.UsuarioFirebase;
 import com.example.instaclone.model.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -85,7 +86,7 @@ public class CadastroActivity extends AppCompatActivity {
                 if(task.isSuccessful()){
                     try{
                         progressBarCadastro.setVisibility(View.GONE);
-
+                        UsuarioFirebase.atualizaNomeUser(user.getNome());
                         //Salvar dados no Firebase
                         String idUser = task.getResult().getUser().getUid();
                         user.setId(idUser);
