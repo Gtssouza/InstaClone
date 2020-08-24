@@ -74,7 +74,7 @@ public class EditarPerfilActivity extends AppCompatActivity {
 
         final FirebaseUser usuario = UsuarioFirebase.getUserAtual();
 
-        txtNomeEdit.setText(usuario.getDisplayName());
+        txtNomeEdit.setText(usuario.getDisplayName().toUpperCase());
         txtEmailEdit.setText(usuario.getEmail());
 
         Uri url = usuario.getPhotoUrl();

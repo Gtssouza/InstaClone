@@ -11,14 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/searchViewPesquisa"
+        <SearchView
+            android:id="@+id/searchViewPesquisas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewPesquisa"
+        android:id="@+id/recyclerViewPesquisas"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="15dp" />
