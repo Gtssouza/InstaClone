@@ -152,8 +152,8 @@ public class EditarPerfilActivity extends AppCompatActivity {
                             imageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
-                                    Uri url = task.getResult();
-                                    atualizarFotoUser(url);
+                                    Uri uri = task.getResult();
+                                    atualizarFotoUser(uri);
                                 }
                             });
                             Toast.makeText(EditarPerfilActivity.this, "Sucesso ao fazer upload da imagem", Toast.LENGTH_SHORT).show();

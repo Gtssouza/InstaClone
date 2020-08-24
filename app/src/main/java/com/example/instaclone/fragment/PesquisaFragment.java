@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.SearchView;
 
 import com.example.instaclone.R;
+import com.example.instaclone.adapter.AdapterPesquisa;
 import com.example.instaclone.helper.ConfiguracaoFirebase;
 import com.example.instaclone.model.Usuario;
 import com.google.firebase.database.DataSnapshot;
@@ -28,16 +30,14 @@ public class PesquisaFragment extends Fragment {
 
     private SearchView searchViewPesquisa;
     private RecyclerView recyclerViewPesquisa;
-    private List<Usuario> listaUsers = new ArrayList<>();
+
+    private List<Usuario> listaUsers;
     private DatabaseReference usuariosRef;
+
+    private AdapterPesquisa adapterPesquisa;
 
     public PesquisaFragment() {
 
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -46,7 +46,17 @@ public class PesquisaFragment extends Fragment {
 
        searchViewPesquisa = view.findViewById(R.id.searchViewPesquisas);
        recyclerViewPesquisa = view.findViewById(R.id.recyclerViewPesquisas);
+
+       listaUsers = new ArrayList<>();
        usuariosRef = ConfiguracaoFirebase.getDatabaseReference().child("usuarios");
+
+       //Configura recyclerViewPesquisa
+        recyclerViewPesquisa.setHasFixedSize(true);
+        recyclerViewPesquisa.setLayoutManager( new LinearLayoutManager(getActivity()));
+       //adapter
+        adapterPesquisa = new AdapterPesquisa(listaUsers, getActivity());
+        recyclerViewPesquisa.setAdapter(adapterPesquisa);
+
 
        //Configura searchView
         searchViewPesquisa.setQueryHint("Buscar usuários");
@@ -58,7 +68,7 @@ public class PesquisaFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                String txtDigitado = searchViewPesquisa.getQuery().toString().toUpperCase();
+                String txtDigitado = newText.toUpperCase();
                 pesquisarUsuarios(txtDigitado);
                 return true;
             }
@@ -67,21 +77,24 @@ public class PesquisaFragment extends Fragment {
        return view;
     }
 
-    private void pesquisarUsuarios(String txtPesquisado){
+    private void pesquisarUsuarios(String txt){
 
         listaUsers.clear();
         //Pesquisar usuarios caso tenha texto na pesquisa
-        if(txtPesquisado.length() > 0){
-            Query query = usuariosRef.orderByChild("nome").startAt(txtPesquisado).endAt(txtPesquisado + "\uf8ff");
+        if(txt.length() > 0){
+            Query query = usuariosRef.orderByChild("nome").startAt(txt).endAt(txt + "\uf8ff");
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    listaUsers.clear();
                     for(DataSnapshot ds : snapshot.getChildren()){
                         listaUsers.add(ds.getValue(Usuario.class));
                     }
 
-                    int total = listaUsers.size();
-                    Log.i("totalUsuarios", "total:" + total);
+                    //int total = listaUsers.size();
+                    //Log.i("totalUsuarios", "total:" + total);
+
+                   adapterPesquisa.notifyDataSetChanged();
                 }
 
                 @Override

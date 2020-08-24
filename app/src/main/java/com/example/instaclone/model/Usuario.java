@@ -39,7 +39,7 @@ public class Usuario implements Serializable {
         usuarioMap.put("email", getEmail());
         usuarioMap.put("nome", getNome());
         usuarioMap.put("id",getId());
-        usuarioMap.put("foto", getCaminhoFoto());
+        usuarioMap.put("caminhoFoto", getCaminhoFoto());
         return usuarioMap;
     }
 
