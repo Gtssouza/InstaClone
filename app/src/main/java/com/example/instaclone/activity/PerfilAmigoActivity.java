@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -30,8 +31,10 @@ public class PerfilAmigoActivity extends AppCompatActivity {
     private CircleImageView circleImgPerfil;
     private DatabaseReference usuarioRef;
     private DatabaseReference usuarioAmigoRef;
+    private DatabaseReference seguidoresRef;
     private ValueEventListener valueEventListener;
     private TextView txtNumPublicacoes, txtNumSeguidores, txtNumSeguindo;
+   private String idUsuarioLogado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,8 @@ public class PerfilAmigoActivity extends AppCompatActivity {
 
         //Configurações iniciais
         usuarioRef = ConfiguracaoFirebase.getDatabaseReference().child("usuarios");
+        seguidoresRef = ConfiguracaoFirebase.getDatabaseReference().child("seguidores");
+        idUsuarioLogado = UsuarioFirebase.getIdentificadorUser();
 
         txtNumPublicacoes = findViewById(R.id.textViewPublicacoes);
         txtNumSeguidores =  findViewById(R.id.textViewSeguidores);
@@ -71,12 +76,47 @@ public class PerfilAmigoActivity extends AppCompatActivity {
             Uri url = Uri.parse(caminhoFoto);
             Glide.with(PerfilAmigoActivity.this).load(url).into(circleImgPerfil);
         }
+
+        verificaSegueUsuarioAmigo();
+
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         finish();
         return false;
+    }
+
+    private void verificaSegueUsuarioAmigo(){
+        DatabaseReference seguidorRef = seguidoresRef.child(idUsuarioLogado).child(usuarioSelecionado.getId());
+        //Consulta apenas uma vez o banco de dados
+        seguidorRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    //Já esta seguindo
+                    Log.d("dadosUsuario", "Seguindo");
+                    habilitarBotaoSeguir(true);
+                }else{
+                    //Ainda não esta seguindo
+                    Log.d("dadosUsuario", "Seguir");
+                    habilitarBotaoSeguir(false);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void habilitarBotaoSeguir(boolean segueUsuario){
+        if(segueUsuario){
+            buttonAcaoPerfil.setText("Seguindo");
+        }else{
+            buttonAcaoPerfil.setText("Seguir");
+        }
     }
 
     @Override
